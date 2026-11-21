@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRE — Customs Risk Evaluator</title>
+<style>
+:root{--brown:#60432f;--brown2:#8b6548;--beige:#eadcc2;--paper:#f7f0e2;--navy:#203b55;--blue:#315d7a;--ink:#30271f;--muted:#786b5b;--line:#c9b89b;--green:#47734c;--yellow:#b78328;--red:#9b4139}
+*{box-sizing:border-box}body{margin:0;background:#d6c6a9;color:var(--ink);font-family:Georgia,"Times New Roman",serif}
+header{background:linear-gradient(110deg,#3d2b20,#203b55);color:#f8eedb;padding:18px 4vw;display:flex;align-items:center;gap:18px;border-bottom:5px solid #b28b5d}
+.emblem{width:66px;height:78px;flex:none}.brand h1{font-size:clamp(22px,3vw,34px);margin:0;letter-spacing:1px}.brand p{margin:5px 0 0;color:#ddcba9;font-size:13px;letter-spacing:2px}
+nav{display:flex;gap:8px;flex-wrap:wrap;background:#eadcc2;padding:10px 4vw;border-bottom:1px solid var(--line)}
+nav button,.btn{border:1px solid #9e8060;background:#f7f0e2;color:#473525;padding:9px 14px;border-radius:3px;cursor:pointer;font-family:inherit;font-weight:bold}
+nav button.active,.btn.primary{background:var(--navy);color:#fff1d9;border-color:var(--navy)}
+main{max-width:1200px;margin:24px auto;padding:0 18px}.panel{background:var(--paper);border:1px solid #bba889;box-shadow:0 4px 12px #513a2420;padding:22px;margin-bottom:18px;border-radius:4px}
+h2{margin:0 0 16px;color:var(--navy);font-size:24px;border-bottom:2px solid var(--line);padding-bottom:9px}
+h3{color:var(--brown);margin:8px 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+label{display:block;font-size:14px;font-weight:bold;color:#5a4431;margin:8px 0 5px}input,select,textarea{width:100%;padding:10px;background:#fffaf0;border:1px solid #c4b293;border-radius:3px;color:#30271f;font:15px Georgia}
+small,.muted{color:var(--muted)}.hidden{display:none!important}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.stat{background:#eee2ca;border:1px solid var(--line);padding:15px;text-align:center}.stat strong{display:block;font-size:27px;color:var(--navy)}
+.score{font-size:44px;font-weight:bold;color:var(--navy)}.pill{display:inline-block;padding:6px 12px;border-radius:20px;color:white;font:bold 13px Arial}.low{background:var(--green)}.mid{background:var(--yellow)}.high{background:var(--red)}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:9px;border-bottom:1px solid #d7c8ad;text-align:left}th{background:#e9dcc4;color:#493727}
+.factor{display:grid;grid-template-columns:1fr 1fr 42px;gap:10px;align-items:center;margin:10px 0}.bar{height:12px;background:#e0d3bc;border-radius:8px;overflow:hidden}.bar span{display:block;height:100%;background:var(--blue)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.notice{padding:12px;background:#e9dfc9;border-left:4px solid var(--blue);font-size:14px}
+footer{text-align:center;color:#6c5a47;padding:15px;font-size:13px}
+#login{max-width:420px;margin:45px auto}
+@media(max-width:720px){.grid,.grid3,.stats{grid-template-columns:1fr}.factor{grid-template-columns:1fr 1fr 32px}header{align-items:flex-start}.emblem{width:48px;height:60px}}
+</style></head>
+<body>
+<header>
+<svg class="emblem" viewBox="0 0 100 120" aria-label="Стилизованный герб России">
+<path d="M8 8 Q50 -2 92 8 L88 83 Q78 108 50 118 Q22 108 12 83Z" fill="#a9342e" stroke="#e5c27c" stroke-width="3"/>
+<g fill="#e9c66e" stroke="#f4df9e" stroke-width="1.4">
+<path d="M48 43 C30 17 12 20 18 42 L8 35 15 57 29 55 37 69 46 58 50 45 54 58 63 69 71 55 85 57 92 35 82 42 C88 20 70 17 52 43Z"/>
+<path d="M40 21 L33 12 43 15 50 5 57 15 67 12 60 22Z"/>
+<path d="M46 43 L54 43 56 74 50 82 44 74Z"/>
+<path d="M30 25 L22 15 35 20 M70 25 L78 15 65 20"/>
+<path d="M28 35 L12 29 18 46 32 48 M72 35 L88 29 82 46 68 48"/>
+</g><path d="M50 55 C39 61 39 76 50 81 C61 76 61 61 50 55Z" fill="#b8d1df" stroke="#f3dfac" stroke-width="1.5"/>
+<path d="M47 60 L53 60 55 72 49 77 45 70Z" fill="#fff"/>
+<path d="M43 70 L60 64" stroke="#203b55" stroke-width="2"/>
+</svg>
+<div class="brand"><h1>CRE — Customs Risk Evaluator</h1><p>СИСТЕМА ОЦЕНКИ РИСКОВ ПРИ ИМПОРТЕ ТОВАРОВ</p></div>
+</header>
+<nav id="nav" class="hidden">
+<button class="active" data-page="calc">Оценка сделки</button><button data-page="history">История расчётов</button><button data-page="stats">Статистика</button><button data-page="admin" id="adminTab">Администрирование</button>
+<button id="logout" style="margin-left:auto">Выйти</button>
+</nav>
+<main>
+<section id="login" class="panel">
+<h2>Вход в систему</h2><p class="muted">Демонстрационный доступ. Данные хранятся в браузере этого устройства.</p>
+<label>Логин</label><input id="username" value="admin">
+<label>Пароль</label><input id="password" type="password" value="cre2026">
+<div class="actions"><button class="btn primary" id="loginBtn">Войти</button></div>
+<p class="notice">Администратор: <b>admin / cre2026</b><br>Пользователь: <b>user / user2026</b></p>
+</section>
+<section id="app" class="hidden">
+<section id="calc" class="page panel">
+<h2>Карточка импортной сделки</h2>
+<div class="grid">
+<div><label>Наименование товара</label><input id="goods" placeholder="Например, промышленное оборудование"></div>
+<div><label>Код ТН ВЭД ЕАЭС</label><input id="tnved" placeholder="Например, 8471 30 000 0"></div>
+<div><label>Страна экспорта</label><input id="country" placeholder="Китай"></div>
+<div><label>Поставщик / компания</label><input id="supplier" placeholder="ООО / компания-поставщик"></div>
+<div><label>Срок работы поставщика</label><select id="age"><option value="1">Более 5 лет</option><option value="2">2–5 лет</option><option value="4">Менее 2 лет</option><option value="5">Новый / неизвестен</option></select></div>
+<div><label>Условия оплаты</label><select id="payment"><option value="1">Оплата после поставки / аккредитив</option><option value="2">Частичная предоплата до 30%</option><option value="3">Предоплата 30–70%</option><option value="5">Предоплата 100%</option></select></div>
+<div><label>Документы и разрешения</label><select id="docs"><option value="1">Документы проверены, разрешения есть</option><option value="3">Часть документов требует проверки</option><option value="5">Документы отсутствуют / неясны</option></select></div>
+<div><label>Маршрут доставки</label><select id="route"><option value="1">Отработанный прямой маршрут</option><option value="2">Стандартный мультимодальный</option><option value="4">Сложный / транзит через несколько стран</option><option value="5">Неизвестный или нестабильный маршрут</option></select></div>
+<div><label>Способ доставки</label><select id="transport"><option value="1">Морской / железнодорожный по графику</option><option value="2">Автомобильный</option><option value="3">Авиационный / срочный</option><option value="4">Нестандартный / комбинированный</option></select></div>
+<div><label>Валютно-финансовая устойчивость</label><select id="finance"><option value="1">Валюта стабильна, страхование предусмотрено</option><option value="3">Есть валютные колебания / частичное страхование</option><option value="5">Высокая волатильность, страхования нет</option></select></div>
+<div><label>Страновой риск</label><select id="countryRisk"><option value="1">Низкий</option><option value="3">Умеренный</option><option value="5">Повышенный</option></select></div>
+<div><label>Проверка ограничений и санкционных списков</label><select id="sanctions"><option value="1">Проверено, совпадений нет</option><option value="3">Требуется дополнительная проверка</option><option value="5">Есть совпадение / существенная неопределённость</option></select></div>
+</div>
+<div class="actions"><button class="btn primary" id="calculate">Рассчитать риск и сформировать отчёт</button><button class="btn" id="clear">Очистить форму</button></div>
+<div id="result" class="panel hidden" style="margin-top:20px">
+<h2>Результат оценки</h2><div class="score" id="score">—</div><span id="level" class="pill">—</span>
+<p id="summary"></p><h3>Структура риска</h3><div id="breakdown"></div><h3>Рекомендации системы</h3><ul id="recommendations"></ul>
+<div class="actions"><button class="btn primary" id="save">Сохранить расчёт</button><button class="btn" id="csvOne">Экспорт отчёта CSV</button><button class="btn" id="share">Поделиться результатом</button></div>
+<p class="muted" id="shareLinks"></p>
+</div></section>
+<section id="history" class="page panel hidden"><h2>Сохранённые расчёты</h2><div class="actions"><button class="btn primary" id="exportAll">Экспорт всей истории CSV</button></div><div style="overflow:auto"><table><thead><tr><th>Дата</th><th>Товар</th><th>Поставщик</th><th>Страна</th><th>Риск</th><th>Действия</th></tr></thead><tbody id="historyRows"></tbody></table></div></section>
+<section id="stats" class="page panel hidden"><h2>Журнал статистики</h2><div class="stats"><div class="stat"><strong id="total">0</strong>Всего расчётов</div><div class="stat"><strong id="avg">0</strong>Средний риск</div><div class="stat"><strong id="highCount">0</strong>Высокий риск</div><div class="stat"><strong id="lowCount">0</strong>Низкий риск</div></div><h3>Распределение по зонам</h3><div id="statsBars"></div><p class="muted">Статистика рассчитывается по сохранённым записям в локальном хранилище браузера.</p></section>
+<section id="admin" class="page panel hidden"><h2>Панель администратора</h2><p>Демонстрационная роль администратора. В реальной версии управление пользователями, разграничение прав и аудит должны выполняться на сервере.</p><div class="notice">Роли: администратор — просмотр статистики и истории; пользователь — создание и сохранение собственных расчётов. В текущем автономном прототипе общая база браузера используется для демонстрации.</div><h3>Параметры скоринговой модели</h3><table><tr><th>Категория</th><th>Вес</th><th>Состав факторов</th></tr><tr><td>Коммерческий</td><td>25%</td><td>Срок работы, условия оплаты, поставщик</td></tr><tr><td>Регуляторный</td><td>25%</td><td>ТН ВЭД, документы, ограничения</td></tr><tr><td>Логистический</td><td>20%</td><td>Маршрут, способ доставки</td></tr><tr><td>Валютно-финансовый</td><td>15%</td><td>Валюта, страхование, ликвидность</td></tr><tr><td>Страновой</td><td>15%</td><td>Стабильность страны экспорта</td></tr></table></section>
+</section>
+</main><footer>CRE — Customs Risk Evaluator · Учебный прототип · Разработчик: Лобанов Никита Валерьевич</footer>
+<script>
+const $=id=>document.getElementById(id);let current=null,role=null;
+const keys=['goods','tnved','country','supplier','age','payment','docs','route','transport','finance','countryRisk','sanctions'];
+function records(){try{return JSON.parse(localStorage.getItem('cre_records')||'[]')}catch(e){return[]}}
+function setRecords(a){localStorage.setItem('cre_records',JSON.stringify(a))}
+$('loginBtn').onclick=()=>{let u=$('username').value.trim(),p=$('password').value; if((u==='admin'&&p==='cre2026')||(u==='user'&&p==='user2026')){role=u==='admin'?'admin':'user';$('login').classList.add('hidden');$('app').classList.remove('hidden');$('nav').classList.remove('hidden');$('adminTab').classList.toggle('hidden',role!=='admin');refresh()}else alert('Неверный логин или пароль')};
+$('logout').onclick=()=>{role=null;$('app').classList.add('hidden');$('nav').classList.add('hidden');$('login').classList.remove('hidden')};
+document.querySelectorAll('nav button[data-page]').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button[data-page]').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));$(b.dataset.page).classList.remove('hidden');refresh()});
+function readForm(){let o={};keys.forEach(k=>o[k]=$(k).value);return o}
+function calc(o){let commercial=(+o.age*0.45 + +o.payment*0.55),regulatory=(+o.docs*0.55 + +o.sanctions*0.45),logistics=(+o.route*0.6 + +o.transport*0.4),finance=+o.finance,country=+o.countryRisk;let parts=[{name:'Коммерческий',v:commercial,w:.25},{name:'Регуляторный',v:regulatory,w:.25},{name:'Логистический',v:logistics,w:.20},{name:'Валютно-финансовый',v:finance,w:.15},{name:'Страновой',v:country,w:.15}];let score=Math.round(parts.reduce((s,x)=>s+x.v*x.w,0)/5*100);return {score,parts}}
+function recommendations(o,r){let a=[];if(+o.payment>=3)a.push('Снизить долю предоплаты; рассмотреть аккредитив или оплату после поставки.');if(+o.age>=4)a.push('Проверить регистрационные сведения, деловую репутацию и историю поставщика.');if(+o.docs>=3)a.push('До отгрузки запросить сертификаты, лицензии и разрешительные документы.');if(+o.sanctions>=3)a.push('Провести дополнительную проверку контрагента, товара и маршрута по актуальным официальным перечням.');if(+o.route>=4||+o.transport>=4)a.push('Проверить транзитные участки, сроки, условия хранения и страхование груза.');if(+o.finance>=3)a.push('Оценить валютную оговорку, курсовые колебания и достаточность страхового покрытия.');if(+o.countryRisk>=3)a.push('Оценить страновые ограничения и предусмотреть резервный маршрут.');if(!a.length)a.push('Существенных сигналов по введённым параметрам не выявлено. Сохранить документы проверки и контролировать изменения условий.');if(r.score>60)a.unshift('Высокий уровень: приостановить согласование до устранения критических факторов.');return a}
+$('calculate').onclick=()=>{let o=readForm();if(!o.goods||!o.country||!o.supplier){alert('Заполните товар, страну и поставщика.');return}let r=calc(o);current={...o,...r,recommendations:recommendations(o,r),date:new Date().toLocaleString('ru-RU')};renderResult(current)};
+function renderResult(r){$('result').classList.remove('hidden');$('score').textContent=r.score+'/100';let cls=r.score<30?'low':r.score<=60?'mid':'high';$('level').className='pill '+cls;$('level').textContent=r.score<30?'НИЗКИЙ РИСК':r.score<=60?'СРЕДНИЙ РИСК':'ВЫСОКИЙ РИСК';$('summary').textContent=r.score<30?'Сделка имеет низкий уровень риска по введённым параметрам.':r.score<=60?'Сделка требует дополнительного внимания и проверки отдельных факторов.':'Сделку рекомендуется пересмотреть до устранения значимых рисков.';$('breakdown').innerHTML=r.parts.map(p=>`<div class="factor"><b>${p.name}</b><div class="bar"><span style="width:${p.v/5*100}%"></span></div><b>${p.v.toFixed(1)}/5</b></div>`).join('');$('recommendations').innerHTML=r.recommendations.map(x=>`<li>${x}</li>`).join('')}
+$('save').onclick=()=>{if(!current)return;let a=records();current.id=Date.now();a.unshift(current);setRecords(a);refresh();alert('Расчёт сохранён в истории браузера.')};
+function csv(rows){let cols=['date','goods','tnved','country','supplier','score','age','payment','docs','route','transport','finance','countryRisk','sanctions'];let q=v=>'"'+String(v??'').replaceAll('"','""')+'"';return '\ufeff'+[cols.join(';'),...rows.map(r=>cols.map(k=>q(r[k])).join(';'))].join('\n')}
+function download(name,data,type='text/csv;charset=utf-8'){let blob=new Blob([data],{type}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href)}
+$('csvOne').onclick=()=>current&&download('CRE_report.csv',csv([current]));
+$('exportAll').onclick=()=>download('CRE_history.csv',csv(records()));
+function refresh(){let a=records();$('historyRows').innerHTML=a.map(r=>`<tr><td>${r.date}</td><td>${r.goods}</td><td>${r.supplier}</td><td>${r.country}</td><td><b>${r.score}/100</b></td><td><button class="btn" onclick="shareRecord(${r.id})">Поделиться</button></td></tr>`).join('')||'<tr><td colspan="6">Сохранённых расчётов пока нет</td></tr>';let n=a.length,avg=n?Math.round(a.reduce((s,x)=>s+x.score,0)/n):0,hi=a.filter(x=>x.score>60).length,lo=a.filter(x=>x.score<30).length;$('total').textContent=n;$('avg').textContent=avg;$('highCount').textContent=hi;$('lowCount').textContent=lo;$('statsBars').innerHTML=[['Низкий риск',lo],['Средний риск',a.filter(x=>x.score>=30&&x.score<=60).length],['Высокий риск',hi]].map(([n,v])=>`<div class="factor"><b>${n}</b><div class="bar"><span style="width:${n? v/Math.max(1,a.length)*100:0}%"></span></div><b>${v}</b></div>`).join('')}
+function shareText(r){return `CRE — Customs Risk Evaluator\nТовар: ${r.goods}\nТН ВЭД: ${r.tnved}\nСтрана: ${r.country}\nПоставщик: ${r.supplier}\nОценка риска: ${r.score}/100\nДата: ${r.date}\nРекомендации: ${r.recommendations.join(' ')}`}
+function shareRecord(id){let r=records().find(x=>x.id===id);if(r)share(r)}
+function share(r){let t=encodeURIComponent(shareText(r)),links=[['Telegram',`https://t.me/share/url?url=&text=${t}`],['WhatsApp',`https://wa.me/?text=${t}`],['VK',`https://vk.com/share.php?comment=${t}`],['MAX','https://max.ru/']];$('shareLinks').innerHTML=links.map(([n,u])=>`<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join(' · ')+' · <a href="#" id="copyShare">Скопировать текст</a>';$('copyShare').onclick=e=>{e.preventDefault();navigator.clipboard?.writeText(shareText(r));alert('Текст отчёта скопирован, если браузер разрешил доступ.')}} 
+$('share').onclick=()=>current&&share(current);
+$('clear').onclick=()=>{keys.forEach(k=>$(k).value=$(k).tagName==='SELECT'?$(k).options[0].value:'');$('result').classList.add('hidden');current=null};
+</script></body></html>
